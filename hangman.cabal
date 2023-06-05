@@ -1,7 +1,7 @@
 cabal-version: 1.12
 
 name:           hangman
-version:        0.1.0.0
+version:        0.5.0.0
 synopsis:       Playing Hangman
 description:    Please see the README on GitHub at <https://github.com/githubuser/hangman#readme>
 category:       Game
@@ -33,6 +33,7 @@ library
       base >=4.7 && <5
      , random
      , split
+     , ansi-terminal>=0.11.4
   default-language: Haskell2010
 
 executable hangman-exe
@@ -46,7 +47,8 @@ executable hangman-exe
       base >=4.7 && <5
      , random
      , split
-    , hangman
+     , hangman
+     , ansi-terminal>=0.11.4
   default-language: Haskell2010
 
 test-suite hangman-test
@@ -59,5 +61,5 @@ test-suite hangman-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
-    , hangman
+     , hangman
   default-language: Haskell2010

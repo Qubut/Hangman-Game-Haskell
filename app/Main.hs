@@ -1,11 +1,13 @@
-module Main where
+module Main (main, runGame) where
 
 import Control.Monad (forever)
 import Data.Char (toLower)
-import Data.Maybe (isJust, mapMaybe)
+import Data.Maybe (isJust)
 import Data.List (intersperse)
 import System.Exit (exitSuccess)
 import System.Random (randomRIO)
+import Hangman
+import System.Console.ANSI
 
 type WordList = [String]
 
@@ -34,6 +36,9 @@ maxWordLength = 9
 minWordLength :: Int
 minWordLength = 5
 
+extraTries::Int
+extraTries = 3
+
 gameWords :: IO WordList
 gameWords = filter isAllowed <$> allWords
   where
@@ -55,7 +60,7 @@ charInWord :: Puzzle -> Char -> Bool
 charInWord (Puzzle (Word' word) _ _) c = c `elem` word
 
 alreadyGuessed :: Puzzle -> Char -> Bool
-alreadyGuessed (Puzzle (Word' word) (GuessedCharacters guessed) _) c = Just c `elem` guessed
+alreadyGuessed (Puzzle _ (GuessedCharacters guessed) _) c = Just c `elem` guessed
 
 fillInCharacter :: Puzzle -> Char -> Puzzle
 fillInCharacter (Puzzle (Word' word) (GuessedCharacters filledInSoFar) (TriedCharacters tries)) c =
@@ -91,33 +96,44 @@ isAllCorrect (GuessedCharacters guessed) = all isJust guessed
 
 gameOver :: Puzzle -> IO ()
 gameOver (Puzzle (Word' word) guessed (TriedCharacters tries)) =
-  if length tries > length word + 3 && not (isAllCorrect guessed) then do
+  if length tries > chances && not (isAllCorrect guessed) then do
     putStrLn "You lose!"
     displayWord (Word' word)
+    printHangman (HangmanState chances)
     exitSuccess
   else return ()
+  where
+        chances = length word + extraTries
 
 gameWin :: Puzzle -> IO ()
 gameWin (Puzzle (Word' word) guessed _) =
   if isAllCorrect guessed then do
     putStrLn "You win!"
     displayWord (Word' word)
+    printSavedHangman
     exitSuccess
   else return ()
 
-runGame :: Puzzle -> IO ()
-runGame puzzle = forever $ do
+runGame :: Puzzle -> HangmanState -> IO ()
+runGame puzzle hangmanState = forever $ do
+  clearScreen
   gameOver puzzle
   gameWin puzzle
   putStrLn $ "Current puzzle is: " ++ show puzzle
+  printHangman hangmanState
   putStr "Guess a letter: "
   guess <- getLine
   case guess of
-    [c] -> handleGuess puzzle c >>= runGame
+    [c] -> do
+      puzzle' <- handleGuess puzzle c
+      let hangmanState' = if alreadyGuessed puzzle' c then hangmanState else updateHangmanState hangmanState
+      runGame puzzle' hangmanState'
     _ -> putStrLn "Your guess must be a single character"
 
 main :: IO ()
 main = do
   word <- randomWord
   let puzzle = freshPuzzle (fmap toLower word)
-  runGame puzzle
+      hangmanState = initialHangmanState
+  runGame puzzle hangmanState
+
