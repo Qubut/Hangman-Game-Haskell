@@ -1,0 +1,63 @@
+cabal-version: 1.12
+
+name:           hangman
+version:        0.1.0.0
+synopsis:       Playing Hangman
+description:    Please see the README on GitHub at <https://github.com/githubuser/hangman#readme>
+category:       Game
+homepage:       https://github.com/githubuser/hangman#readme
+bug-reports:    https://github.com/githubuser/hangman/issues
+author:         Qubut
+maintainer:     s-aahmed@haw-landshut.de
+copyright:      2023 Qubut
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+    data/dict.txt
+source-repository head
+  type: git
+  location: https://github.com/qubut/hangman
+
+library
+  exposed-modules:
+      Lib
+  other-modules:
+      Paths_hangman
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      base >=4.7 && <5
+     , random
+     , split
+  default-language: Haskell2010
+
+executable hangman-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_hangman
+  hs-source-dirs:
+      app
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+     , random
+     , split
+    , hangman
+  default-language: Haskell2010
+
+test-suite hangman-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_hangman
+  hs-source-dirs:
+      test
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , hangman
+  default-language: Haskell2010
